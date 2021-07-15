@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\ResponseGenerator;
@@ -73,7 +74,11 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user_data = User::find($id);
+
+        $responseContent = new UserResource($user_data);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Detail data with ID: ".$id, $responseContent);
+        return response()->json($response, 200);
     }
 
     /**
@@ -96,7 +101,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return $id;
     }
 
     /**
