@@ -13,6 +13,8 @@ Route::prefix('user')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/signup', [UserController::class, 'store']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::post('/{id}', [UserController::class, 'update']);
+        Route::put('/data/{id}', [UserController::class, 'update']);
+        Route::post('/picture/{id}', [UserController::class, 'updatePicture']);
+        Route::put('/password/{id}', [UserController::class, 'updatePassword']);
     });
 });

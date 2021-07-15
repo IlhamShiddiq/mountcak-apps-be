@@ -22,7 +22,8 @@ class SuperUserSeeder extends Seeder
             "password" => bcrypt("superuser"),
             "gender" => "L",
             "address" => "Unknown Place",
-            "telp" => "1234567890"
+            "telp" => "1234567890",
+            "role" => "superadmin"
         ]);
     }
 }

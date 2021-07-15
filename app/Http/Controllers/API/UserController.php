@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use App\Helpers\ResponseGenerator;
 use App\Models\User;
 use Ramsey\Uuid\Uuid;
@@ -101,7 +103,99 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return $id;
+        $validator = Validator::make($request->all(), [
+            'email' => 'email',
+            'gender' => 'in:L,P',
+        ]);
+        
+        if ($validator->fails()) {
+            $message = $validator->messages()->first();
+            $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
+            return response()->json($response, 422);
+        }
+        
+        $user_data = User::find($id);
+
+        $data = $request->all();
+        if(isset($data['fullname'])) $data['name'] = $data['fullname'];
+
+        $user_data->update($data);
+
+        $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", new UserResource($user_data));
+        return response()->json($response, 200);
+    }
+
+    /**
+     * Update the specified picture in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePicture(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'image' => 'image:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+        
+        if ($validator->fails()) {
+            $message = $validator->messages()->first();
+            $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
+            return response()->json($response, 422);
+        }
+        
+        $user_data = User::find($id);
+        $uploadFolder = 'users/'.$id;
+        $image = $request->file('image');
+        $imageName = $user_data->image;
+
+        if ($image) {
+            // if($user_data->image != "iamauser.jpg") {
+            //     Storage::delete("users/".$user_data->image);
+            // }
+
+            $image_uploaded_path = $image->store($uploadFolder, 'public');
+            $imageName = $id."/".basename($image_uploaded_path);
+        }
+
+        $data = $request->all();
+        $data['image'] = $imageName;
+
+        $user_data->update($data);
+
+        $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", new UserResource($user_data));
+        return response()->json($response, 200);
+    }
+
+    public function updatePassword(Request $request, $id) {
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required|min:6',
+            'password' => 'required|min:6',
+            'password_confirmation' => 'required|same:password'
+        ]);
+        
+        if ($validator->fails()) {
+            $message = $validator->messages()->first();
+            $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
+            return response()->json($response, 422);
+        }
+
+        $user_data = User::find($id);
+
+        $checkMatches = Hash::check($request->get('old_password'), $user_data->password);
+
+        if(!($checkMatches)) {
+            $response = ResponseGenerator::createApiResponse(true, 422, "Wrong password!", null);
+            return response()->json($response, 422);
+        }
+
+        $new_pass = bcrypt($request->password);
+        $user_data->update([
+            'password' => $new_pass
+        ]);
+
+        $response = ResponseGenerator::createApiResponse(false, 200, "Password updated successfully", null);
+        return response()->json($response, 200);
     }
 
     /**
