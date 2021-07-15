@@ -43,10 +43,7 @@ class UserController extends Controller
             'fullname' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:6',
-            'password_confirmation' => 'required|same:password',
-            'gender' => 'required|in:L,P',
-            'address' => 'required',
-            'telp' => 'required',
+            'password_confirmation' => 'required|same:password'
         ]);
 
         if ($validator->fails()) {
