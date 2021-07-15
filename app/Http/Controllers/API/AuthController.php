@@ -15,12 +15,16 @@ class AuthController extends Controller
 
         if(!$user || !Hash::check($request->password, $user->password)) {
             $response = ResponseGenerator::createApiResponse(true, 401, "Bad Credentials", null);
-            return response()->json($response);
+            return response()->json($response, 401);
         }
 
         $token = $user->createToken('appToken')->plainTextToken;
+        $responseContent = array(
+            'id' => $user->id,
+            'token' => $token
+        );
 
-        $response = ResponseGenerator::createApiResponse(false, 200, "Logged In", ['token' => $token]);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Logged In", $responseContent);
 
         return response()->json($response, 200);
     }

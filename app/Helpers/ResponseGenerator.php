@@ -8,13 +8,13 @@ class ResponseGenerator {
 
         if($is_error) {
             $result['success'] = false;
-            $result['code'] = $status_code;
+            $result['status'] = $status_code;
             $result['message'] = $message;
         } else {
             $result['success'] = true;
-            $result['code'] = $status_code;
+            $result['status'] = $status_code;
             if($message) $result['message'] = $message;
-            if($content) $result['data'] = $content;
+            if($content) $result['result'] = $content;
         }
 
         return $result;
