@@ -145,23 +145,18 @@ class UserController extends Controller
         }
         
         $user_data = User::find($id);
-        $uploadFolder = 'users/'.$id;
         $image = $request->file('image');
-        $imageName = $user_data->image;
 
         if ($image) {
-            // if($user_data->image != "iamauser.jpg") {
-            //     Storage::delete("users/".$user_data->image);
-            // }
-
-            $image_uploaded_path = $image->store($uploadFolder, 'public');
-            $imageName = $id."/".basename($image_uploaded_path);
+            if($user_data->image != "https://res.cloudinary.com/dmpdsvsye/image/upload/v1626357382/iamauser_fdzejb.jpg") {
+                cloudinary()->uploadApi()->destroy($id);
+            }
+            $image_url = cloudinary()->upload($image->getRealPath(), ["public_id" => $id])->getSecurePath();
         }
 
-        $data = $request->all();
-        $data['image'] = $imageName;
-
-        $user_data->update($data);
+        $user_data->update([
+            'image' => $image_url
+        ]);
 
         $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", new UserResource($user_data));
         return response()->json($response, 200);

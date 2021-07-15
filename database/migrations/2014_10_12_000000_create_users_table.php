@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('address')->nullable();
             $table->string('telp', 16)->nullable();
             $table->string('role')->default('general');
-            $table->string('image')->default('iamauser.jpg');
+            $table->string('image')->default('https://res.cloudinary.com/dmpdsvsye/image/upload/v1626357382/iamauser_fdzejb.jpg');
             $table->rememberToken();
             $table->timestamps();
         });

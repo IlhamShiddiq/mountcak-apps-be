@@ -25,7 +25,7 @@ class UserResource extends JsonResource
             'address' => $this->address,
             'telp' => $this->telp,
             'role' => $this->role,
-            'image' => Storage::disk('public')->url($image_uploaded_path),
+            'image' => $this->image,
         ];
     }
 }
