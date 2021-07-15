@@ -41,4 +41,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+    * Indicates if the IDs are auto-incrementing.
+    *
+    * @var bool
+    */
+    public $incrementing = false;
 }
