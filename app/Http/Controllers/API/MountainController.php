@@ -56,7 +56,7 @@ class MountainController extends Controller
         $mountain = Mountain::find($id);
         
         $responseContent = new MountainResource($mountain);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain datas", $responseContent);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain data", $responseContent);
         return response()->json($response, 200);
     }
 

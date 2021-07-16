@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MountainController;
+use App\Http\Controllers\API\TeamController;
 
 Route::prefix('user')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -22,5 +23,7 @@ Route::prefix('mountain')->group(function () {
     Route::group(['middleware' => ['auth:sanctum']],function () {
         Route::get('/', [MountainController::class, 'index']);
         Route::get('/{id}', [MountainController::class, 'show']);
+        Route::get('/{id}/teams', [TeamController::class, 'index']);
+        Route::get('/{id}/teams/{team_id}', [TeamController::class, 'show']);
     });
 });
