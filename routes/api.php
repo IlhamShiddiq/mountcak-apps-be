@@ -4,8 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
-
-
+use App\Http\Controllers\API\MountainController;
 
 Route::prefix('user')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -16,5 +15,12 @@ Route::prefix('user')->group(function () {
         Route::put('/data/{id}', [UserController::class, 'update']);
         Route::post('/picture/{id}', [UserController::class, 'updatePicture']);
         Route::put('/password/{id}', [UserController::class, 'updatePassword']);
+    });
+});
+
+Route::prefix('mountain')->group(function () {
+    Route::group(['middleware' => ['auth:sanctum']],function () {
+        Route::get('/', [MountainController::class, 'index']);
+        Route::get('/{id}', [MountainController::class, 'show']);
     });
 });
