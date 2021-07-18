@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TeamResource;
 use Illuminate\Http\Request;
-use App\Models\Team;
 use App\Helpers\ResponseGenerator;
+use App\Repositories\Model\Team\TeamRepository;
 
 class TeamController extends Controller
 {
+    protected $teamRepo;
+
+    public function __construct(TeamRepository $teamRepo) {
+        $this->teamRepo = $teamRepo;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,13 +22,9 @@ class TeamController extends Controller
      */
     public function index($id)
     {
-        $teams = Team::join('mountains', 'mountains.id', '=', 'teams.mountain_id')
-                    ->join('users', 'users.id', '=', 'teams.leader_id')
-                    ->where('mountain_id', $id)
-                    ->get(['teams.*', 'mountains.name AS mountain_name', 'mountains.price AS price', 'users.image AS leader_image', 'users.name AS leader_name']);
-
-        $responseContent = TeamResource::collection($teams);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Team datas", $responseContent);
+        $teams = $this->teamRepo->getAll($id);
+        
+        $response = ResponseGenerator::createApiResponse(false, 200, "Team datas", $teams);
         return response()->json($response, 200);
     }
 
@@ -57,14 +58,9 @@ class TeamController extends Controller
      */
     public function show($id, $team_id)
     {
-        $team = Team::join('mountains', 'mountains.id', '=', 'teams.mountain_id')
-                    ->join('users', 'users.id', '=', 'teams.leader_id')
-                    ->where('teams.id', $team_id)
-                    ->get(['teams.*', 'mountains.name AS mountain_name', 'mountains.price AS price', 'users.image AS leader_image', 'users.name AS leader_name'])
-                    ->first();
+        $team = $this->teamRepo->showDetail($id, $team_id);
 
-        $responseContent = new TeamResource($team);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Team data", $responseContent);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Team data", $team);
         return response()->json($response, 200);
     }
 

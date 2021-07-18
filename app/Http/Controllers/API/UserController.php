@@ -4,16 +4,22 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Repositories\Model\User\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\ResponseGenerator;
-use App\Models\User;
 use Ramsey\Uuid\Uuid;
 
 class UserController extends Controller
 {
+    protected $userRepo;
+
+    public function __construct(UserRepository $userRepo) {
+        $this->userRepo = $userRepo;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -59,12 +65,10 @@ class UserController extends Controller
         $data['id'] = Uuid::uuid4();
         $data['password'] = bcrypt($data['password']);
         $data['name'] = $data['fullname'];
-        $new_data = User::create($data);
 
-        $responseContent = array(
-            'user_id' => $new_data->id
-        );
-        $response = ResponseGenerator::createApiResponse(false, 201, "Data added successfully", $responseContent);
+        $new_data = $this->userRepo->store($data);
+
+        $response = ResponseGenerator::createApiResponse(false, 201, "Data added successfully", ['user_id' => $new_data->id]);
         return response()->json($response, 201);
     }
 
@@ -76,10 +80,9 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user_data = User::find($id);
+        $user = $this->userRepo->showDetail($id, true);
 
-        $responseContent = new UserResource($user_data);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Detail data with ID: ".$id, $responseContent);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Detail data with ID: ".$id, $user);
         return response()->json($response, 200);
     }
 
@@ -113,15 +116,13 @@ class UserController extends Controller
             $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
             return response()->json($response, 422);
         }
-        
-        $user_data = User::find($id);
 
         $data = $request->all();
         if(isset($data['fullname'])) $data['name'] = $data['fullname'];
 
-        $user_data->update($data);
+        $this->userRepo->update($data, $id);
 
-        $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", new UserResource($user_data));
+        $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", null);
         return response()->json($response, 200);
     }
 
@@ -144,7 +145,7 @@ class UserController extends Controller
             return response()->json($response, 422);
         }
         
-        $user_data = User::find($id);
+        $user_data = $this->userRepo->showDetail($id, false);
         $image = $request->file('image');
 
         if ($image) {
@@ -154,11 +155,9 @@ class UserController extends Controller
             $image_url = cloudinary()->upload($image->getRealPath(), ["public_id" => $id])->getSecurePath();
         }
 
-        $user_data->update([
-            'image' => $image_url
-        ]);
+        $this->userRepo->updatePicture($image_url, $id);
 
-        $response = ResponseGenerator::createApiResponse(false, 200, "Data updated successfully", new UserResource($user_data));
+        $response = ResponseGenerator::createApiResponse(false, 200, "Picture updated successfully", null);
         return response()->json($response, 200);
     }
 
@@ -175,7 +174,7 @@ class UserController extends Controller
             return response()->json($response, 422);
         }
 
-        $user_data = User::find($id);
+        $user_data = $this->userRepo->showDetail($id, false);
 
         $checkMatches = Hash::check($request->get('old_password'), $user_data->password);
 
@@ -184,10 +183,7 @@ class UserController extends Controller
             return response()->json($response, 422);
         }
 
-        $new_pass = bcrypt($request->password);
-        $user_data->update([
-            'password' => $new_pass
-        ]);
+        $this->userRepo->updatePassword(bcrypt($request->password), $id);
 
         $response = ResponseGenerator::createApiResponse(false, 200, "Password updated successfully", null);
         return response()->json($response, 200);

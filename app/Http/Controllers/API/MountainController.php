@@ -3,13 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\MountainResource;
-use App\Models\Mountain;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseGenerator;
+use App\Repositories\Model\Mountain\MountainRepository;
 
 class MountainController extends Controller
 {
+    protected $mountainRepo;
+
+    public function __construct(MountainRepository $mountainRepo) {
+        $this->mountainRepo = $mountainRepo;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,10 +22,9 @@ class MountainController extends Controller
      */
     public function index()
     {
-        $mountains = Mountain::all();
+        $mountains = $this->mountainRepo->getAll();
         
-        $responseContent = MountainResource::collection($mountains);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain datas", $responseContent);
+        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain datas", $mountains);
         return response()->json($response, 200);
     }
 
@@ -53,10 +57,9 @@ class MountainController extends Controller
      */
     public function show($id)
     {
-        $mountain = Mountain::find($id);
-        
-        $responseContent = new MountainResource($mountain);
-        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain data", $responseContent);
+        $mountain = $this->mountainRepo->showDetail($id);
+
+        $response = ResponseGenerator::createApiResponse(false, 200, "Mountain data", $mountain);
         return response()->json($response, 200);
     }
 
