@@ -1,6 +1,6 @@
 # Mountcak Apps API
 
-## Installing
+## Installing (Local)
 ### 1. Sofware required
 Before installing, make sure your device has installed this software.
 * Composer : you can download it [here](https://getcomposer.org/)
