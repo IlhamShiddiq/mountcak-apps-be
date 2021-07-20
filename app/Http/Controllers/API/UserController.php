@@ -54,6 +54,7 @@ class UserController extends Controller
             'password' => 'required|min:6',
             'password_confirmation' => 'required|same:password'
         ]);
+        return 'a';
 
         if ($validator->fails()) {
             $message = $validator->messages()->first();

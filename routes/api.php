@@ -7,6 +7,10 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MountainController;
 use App\Http\Controllers\API\TeamController;
 
+Route::get('/welcome', function() {
+    return response()->json(['body' => 'welcome']);
+});
+
 Route::prefix('user')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::group(['middleware' => ['auth:sanctum']],function () {
