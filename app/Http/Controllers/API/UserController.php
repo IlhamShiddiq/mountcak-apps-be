@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Http\Requests\UserRequest;
 use App\Repositories\Model\User\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -46,21 +47,21 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'fullname' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-            'password_confirmation' => 'required|same:password'
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'fullname' => 'required',
+        //     'email' => 'required|email',
+        //     'password' => 'required|min:6',
+        //     'password_confirmation' => 'required|same:password'
+        // ]);
+        
+        // if ($validator->fails()) {
+        //     $message = $validator->messages()->first();
+        //     $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
+        //     return response()->json($response, 422);
+        // }
         return 'a';
-
-        if ($validator->fails()) {
-            $message = $validator->messages()->first();
-            $response = ResponseGenerator::createApiResponse(true, 422, $message, null);
-            return response()->json($response, 422);
-        }
 
         $data = $request->all();
         $data['id'] = Uuid::uuid4();

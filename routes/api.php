@@ -13,9 +13,9 @@ Route::get('/welcome', function() {
 
 Route::prefix('user')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/signup', [UserController::class, 'store']);
     Route::group(['middleware' => ['auth:sanctum']],function () {
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/signup', [UserController::class, 'store']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::put('/data/{id}', [UserController::class, 'update']);
         Route::post('/picture/{id}', [UserController::class, 'updatePicture']);
